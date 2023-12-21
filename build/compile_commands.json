@@ -1,0 +1,14 @@
+[
+{
+  "directory": "C:/Users/Tomas/Desktop/AIC/build",
+  "command": "C:/w64devkit/bin/gcc.exe  @CMakeFiles/AIC.dir/includes_C.rsp  -Wall -Wextra -Wpedantic  -Wno-unused-function -Wno-unused-parameter -Wno-missing-field-initializers -g -o CMakeFiles/AIC.dir/src/main.c.obj -c C:/Users/Tomas/Desktop/AIC/src/main.c",
+  "file": "C:/Users/Tomas/Desktop/AIC/src/main.c",
+  "output": "CMakeFiles/AIC.dir/src/main.c.obj"
+},
+{
+  "directory": "C:/Users/Tomas/Desktop/AIC/build",
+  "command": "C:/w64devkit/bin/gcc.exe  @CMakeFiles/AIC.dir/includes_C.rsp  -Wall -Wextra -Wpedantic  -Wno-unused-function -Wno-unused-parameter -Wno-missing-field-initializers -g -o CMakeFiles/AIC.dir/src/matrix.c.obj -c C:/Users/Tomas/Desktop/AIC/src/matrix.c",
+  "file": "C:/Users/Tomas/Desktop/AIC/src/matrix.c",
+  "output": "CMakeFiles/AIC.dir/src/matrix.c.obj"
+}
+]

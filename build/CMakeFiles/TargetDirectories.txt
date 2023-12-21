@@ -1,0 +1,3 @@
+C:/Users/Tomas/Desktop/AIC/build/CMakeFiles/AIC.dir
+C:/Users/Tomas/Desktop/AIC/build/CMakeFiles/edit_cache.dir
+C:/Users/Tomas/Desktop/AIC/build/CMakeFiles/rebuild_cache.dir
