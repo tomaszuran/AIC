@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
+void AIC_TimeSeedRand(void)
+{
+    srand(time(NULL));
+}
 
 uint32_t AIC_MatrixGetIndex(uint32_t x, uint32_t y, Matrix_t *m)
 {
@@ -156,9 +162,10 @@ void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format)
     free(aux);
 }
 
-uint8_t AIC_MatrixCreate(uint32_t rows, uint32_t cols, Matrix_t *m)
+uint8_t AIC_MatrixCreate(uint32_t cols, uint32_t rows, Matrix_t *m)
 {
-    AIC_MatrixDestroy(m);
+    if(m->data)
+        AIC_MatrixDestroy(m);
 
     m->rows = rows;
     m->cols = cols;
@@ -176,9 +183,16 @@ uint8_t AIC_MatrixCreate(uint32_t rows, uint32_t cols, Matrix_t *m)
     }
     return 1;
 }
-uint8_t AIC_MatrixCreateRand(uint32_t rows, uint32_t cols, Matrix_t *m)
+uint8_t AIC_MatrixCreateRand(uint32_t cols, uint32_t rows, Matrix_t *m)
 {
-    return AIC_MatrixCreate(rows, cols, m);
+    uint8_t r = AIC_MatrixCreate(cols, rows, m);
+
+    for(uint32_t i = 0; i < (rows * cols); i++)
+    {
+        m->data[i] = (DATA_TYPE)rand() / RAND_MAX;
+    }
+
+    return r;
 }
 void AIC_MatrixDestroy(Matrix_t *m)
 {
@@ -187,7 +201,7 @@ void AIC_MatrixDestroy(Matrix_t *m)
 
 uint8_t AIC_MatrixTraspose(Matrix_t *m, Matrix_t *t)
 {
-    uint8_t r = AIC_MatrixCreate(m->cols, m->rows, t);
+    uint8_t r = AIC_MatrixCreate(m->rows, m->cols, t);
 
     for (uint32_t x = 0; x < t->cols; x++)
     {
@@ -208,7 +222,7 @@ uint8_t AIC_MatrixAdd(Matrix_t *a, Matrix_t *b, Matrix_t *c)
         }
     }
 
-    uint8_t r = AIC_MatrixCreate(a->rows, a->cols, c);
+    uint8_t r = AIC_MatrixCreate(a->cols, a->rows, c);
 
     for (uint32_t i = 0; i < (a->cols * a->rows); i++)
         c->data[i] = a->data[i] + b->data[i];
@@ -241,7 +255,7 @@ uint8_t AIC_MatrixSub(Matrix_t *a, Matrix_t *b, Matrix_t *c)
         }
     }
 
-    uint8_t r = AIC_MatrixCreate(a->rows, a->cols, c);
+    uint8_t r = AIC_MatrixCreate(a->cols, a->rows, c);
 
     for (uint32_t i = 0; i < (a->cols * a->rows); i++)
         c->data[i] = a->data[i] - b->data[i];

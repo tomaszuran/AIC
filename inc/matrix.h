@@ -13,6 +13,8 @@ typedef struct MatrixTypeDef
     uint32_t rows, cols;
 } Matrix_t;
 
+void AIC_TimeSeedRand(void);
+
 uint32_t AIC_MatrixGetIndex(uint32_t x, uint32_t y, Matrix_t *m);
 uint8_t AIC_MatrixSet(uint32_t x, uint32_t y, DATA_TYPE value, Matrix_t *m);
 DATA_TYPE AIC_MatrixGet(uint32_t x, uint32_t y, Matrix_t *m);
@@ -20,8 +22,8 @@ DATA_TYPE AIC_MatrixGet(uint32_t x, uint32_t y, Matrix_t *m);
 void AIC_MatrixPrint(Matrix_t *m, uint8_t verbose);
 void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format);
 
-uint8_t AIC_MatrixCreate(uint32_t rows, uint32_t cols, Matrix_t *m);
-uint8_t AIC_MatrixCreateRand(uint32_t rows, uint32_t cols, Matrix_t *m);
+uint8_t AIC_MatrixCreate(uint32_t cols, uint32_t rows, Matrix_t *m);
+uint8_t AIC_MatrixCreateRand(uint32_t cols, uint32_t rows, Matrix_t *m);
 void AIC_MatrixDestroy(Matrix_t * m);
 
 uint8_t AIC_MatrixTraspose(Matrix_t *m, Matrix_t *t);

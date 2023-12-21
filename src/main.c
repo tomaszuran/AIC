@@ -3,16 +3,18 @@
 
 int main(int argc, char **argv)
 {
-    Matrix_t m, t;
-    
-    AIC_MatrixCreate(3, 5, &m);
+    Matrix_t m = {0}, t = {0}, a = {0}, b = {0};
+    AIC_TimeSeedRand();
+    AIC_MatrixCreateRand(5, 3, &m);
+    AIC_MatrixCreate(5, 3, &a);
 
-    AIC_MatrixSet(2, 1, 5, &m);
+    AIC_MatrixPrintf(&a, 1, "%1.2f");
+    AIC_MatrixPrintf(&m, 1, "%1.2f");
 
-    AIC_MatrixPrintf(&m, 1, "%1.0f");
+    AIC_MatrixAddItself(&a, &m);
 
-    AIC_MatrixTraspose(&m, &t);
+    AIC_MatrixPrintf(&a, 1, "%1.2f");
+    AIC_MatrixPrintf(&m, 1, "%1.2f");
 
-    AIC_MatrixPrintf(&t, 1, "%1.0f");
     return 0;
 }
