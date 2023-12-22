@@ -16,5 +16,7 @@ int main(int argc, char **argv)
     AIC_MatrixPrintf(&a, 1, "%1.2f");
     AIC_MatrixPrintf(&m, 1, "%1.2f");
 
+    AIC_MatrixTraspose(&m, &t);
+
     return 0;
 }
