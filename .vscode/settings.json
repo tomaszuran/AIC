@@ -1,8 +1,0 @@
-{
-    "C_Cpp.default.compilerPath": "c:\\w64devkit\\bin\\gcc.exe",
-    "cmake.sourceDirectory": "C:/Users/Tomas/Desktop/AIC",
-    "files.associations": {
-        "matrix.h": "c"
-    },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
-}
