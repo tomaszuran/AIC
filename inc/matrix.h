@@ -3,13 +3,18 @@
 
 #include <stdint.h>
 
-#define DATA_TYPE float
-
 #define DEBUG 1
 
+typedef float Data_t;
+
+/*
+ *    @brief Matrix data structure.
+ *
+ *    The data memory is not allocated here. It needs to be allocated via AIC_MatrixCreate or AIC_MatrixCreateRand
+ */
 typedef struct MatrixTypeDef
 {
-    DATA_TYPE *data;
+    Data_t *data;
     uint32_t rows, cols;
 } Matrix_t;
 
@@ -23,25 +28,25 @@ void AIC_TimeSeedRand(void);
 /*
  *    @brief A function to set a matrix value
 
- *    @param x Column number
- *    @param y Row number
+ *    @param row Row number
+ *    @param col Column number
  *    @param value Value to be set
  *    @param m Matrix to be modified 
  *
  *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
  */
-uint8_t AIC_MatrixSet(uint32_t x, uint32_t y, DATA_TYPE value, Matrix_t *m);
+uint8_t AIC_MatrixSet(uint32_t row, uint32_t col, Data_t value, Matrix_t *m);
 
 /*
  *    @brief A function to get a matrix value
 
- *    @param x Column number
- *    @param y Row number
+ *    @param row Row number
+ *    @param col Column number
  *    @param m Matrix to be modified 
  *
  *    @result Open succesfull operation return the value stores in (x, y), otherwise '0'
  */
-DATA_TYPE AIC_MatrixGet(uint32_t x, uint32_t y, Matrix_t *m);
+Data_t AIC_MatrixGet(uint32_t row, uint32_t col, Matrix_t *m);
 
 /*
  *    @brief A function to print a matrix 
@@ -74,7 +79,7 @@ void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format);
  *
  *    @result Void
  */
-uint8_t AIC_MatrixCreate(uint32_t cols, uint32_t rows, Matrix_t *m);
+uint8_t AIC_MatrixCreate(uint32_t rows, uint32_t cols, Matrix_t *m);
 
 /*
  *    @brief A function to allocate memory for a matrix with rand (between 0 and 1) initial value
@@ -85,7 +90,7 @@ uint8_t AIC_MatrixCreate(uint32_t cols, uint32_t rows, Matrix_t *m);
  *
  *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
  */
-uint8_t AIC_MatrixCreateRand(uint32_t cols, uint32_t rows, Matrix_t *m);
+uint8_t AIC_MatrixCreateRand(uint32_t rows, uint32_t cols, Matrix_t *m);
 
 /*
  *    @brief A function to allocate memory for a matrix with null initial value
@@ -113,6 +118,8 @@ uint8_t AIC_MatrixTraspose(Matrix_t *m, Matrix_t *t);
  *    @param a Addend matrix
  *    @param b Addend matrix
  *    @param c Result matrix
+ * 
+ *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
  */
 uint8_t AIC_MatrixAdd(Matrix_t *a, Matrix_t *b, Matrix_t *c);
 
@@ -121,6 +128,8 @@ uint8_t AIC_MatrixAdd(Matrix_t *a, Matrix_t *b, Matrix_t *c);
  *
  *    @param a Addend (and result) matrix
  *    @param b Addend matrix
+ * 
+ *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
  */
 uint8_t AIC_MatrixAddItself(Matrix_t *a, Matrix_t *b);
 
@@ -130,6 +139,8 @@ uint8_t AIC_MatrixAddItself(Matrix_t *a, Matrix_t *b);
  *    @param a Minuend matrix
  *    @param b Subtrahend matrix
  *    @param c Result matrix
+ * 
+ *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
  */
 uint8_t AIC_MatrixSub(Matrix_t *a, Matrix_t *b, Matrix_t *c);
 
@@ -138,7 +149,40 @@ uint8_t AIC_MatrixSub(Matrix_t *a, Matrix_t *b, Matrix_t *c);
  *
  *    @param a Minuend (and result) matrix
  *    @param b Subtrahend matrix
+ * 
+ *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
  */
 uint8_t AIC_MatrixSubItself(Matrix_t *a, Matrix_t *b);
+
+/*
+ *    @brief A function to calculate a matrix multiplication. A x B = C
+ *
+ *    @param a Multiplicated matrix
+ *    @param b Multiplicated matrix
+ *    @param c Result matrix
+ * 
+ *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
+ */
+uint8_t AIC_MatrixMultiplication(Matrix_t *a, Matrix_t *b, Matrix_t *c);
+
+/*
+ *    @brief A function to add a scalar number to every item in the matrix.
+ *
+ *    @param m Matrix to be modified
+ *    @param value Scalar number
+ * 
+ *    @result Void
+ */
+void AIC_MatrixAddScalar(Matrix_t *m, Data_t value);
+
+/*
+ *    @brief A function to multiply a scalar number to every item in the matrix.
+ *
+ *    @param m Matrix to be modified
+ *    @param value Scalar number
+ * 
+ *    @result Void
+ */
+void AIC_MatrixMultiplyScalar(Matrix_t *m, Data_t value);
 
 #endif // MATRIX_H
