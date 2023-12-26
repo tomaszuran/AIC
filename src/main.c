@@ -1,22 +1,45 @@
 #include <stdio.h>
 #include "matrix.h"
+#include "serialize.h"
+
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
-    Matrix_t m = {0}, t = {0}, a = {0}, b = {0};
-    AIC_TimeSeedRand();
-    AIC_MatrixCreateRand(5, 3, &m);
-    AIC_MatrixCreate(5, 3, &a);
+    Matrix_t prueba = {0};
 
-    AIC_MatrixPrintf(&a, 1, "%1.2f");
-    AIC_MatrixPrintf(&m, 1, "%1.2f");
+    int load = 0;
 
-    AIC_MatrixAddItself(&a, &m);
+    printf("1 for load, 0 for save: ");
+    scanf("%d", &load);
 
-    AIC_MatrixPrintf(&a, 1, "%1.2f");
-    AIC_MatrixPrintf(&m, 1, "%1.2f");
+    if (load)
+    {
+        FILE *fp = fopen("serial_matrix.data", "rb");
 
-    AIC_MatrixTraspose(&m, &t);
+        AIC_FileMatrixLoad(fp, &prueba);
+
+        fclose(fp);
+
+        AIC_MatrixPrint(&prueba, 1);
+    }
+    else
+    {
+        AIC_TimeSeedRand();
+
+        AIC_MatrixCreateRand(2, 3, &prueba);
+
+        AIC_MatrixPrint(&prueba, 1);
+
+        FILE *fp = fopen("serial_matrix.data", "wb");
+
+        AIC_FileMatrixSave(fp, &prueba);
+
+        fclose(fp);
+
+    }
+
+    
 
     return 0;
 }

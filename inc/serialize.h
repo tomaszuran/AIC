@@ -3,7 +3,12 @@
 
 #include "matrix.h"
 
-uint8_t AIC_SerializeMatrixSave(uint8_t ** data, Matrix_t * matrix);
-uint8_t AIC_SerializeMatrixLoad(uint8_t * data, Matrix_t * matrix);
+#include <stdio.h>
+
+void AIC_SerializeMatrixSave(uint8_t ** data, Matrix_t * matrix);
+void AIC_SerializeMatrixLoad(uint8_t * data, Matrix_t * matrix);
+
+void AIC_FileMatrixSave(FILE * fp, Matrix_t * matrix);
+void AIC_FileMatrixLoad(FILE * fp, Matrix_t * matrix);
 
 #endif // SERIALIZE_H
