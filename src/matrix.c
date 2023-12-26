@@ -4,65 +4,63 @@
 #include <string.h>
 #include <time.h>
 
+#define INDEX(row, col, matrix) (col * matrix->rows + row)
+
 void AIC_TimeSeedRand(void)
 {
     srand(time(NULL));
 }
 
-uint32_t AIC_MatrixGetIndex(uint32_t x, uint32_t y, Matrix_t *m)
-{
-    return y * m->cols + x;
-}
-uint8_t AIC_MatrixSet(uint32_t x, uint32_t y, DATA_TYPE value, Matrix_t *m)
+uint8_t AIC_MatrixSet(uint32_t row, uint32_t col, Data_t value, Matrix_t *m)
 {
     if (DEBUG)
     {
-        if (x >= m->cols || y >= m->rows)
+        if (row >= m->rows || col >= m->cols)
         {
 
-            fprintf(stderr, "AIC_MatrixSet out of bounds error.");
+            fprintf(stderr, "AIC_MatrixSet out of bounds error.\n");
             return 0;
         }
     }
 
-    m->data[y * m->cols + x] = value;
+    m->data[INDEX(row, col, m)] = value;
 
     return 1;
 }
-DATA_TYPE AIC_MatrixGet(uint32_t x, uint32_t y, Matrix_t *m)
+Data_t AIC_MatrixGet(uint32_t row, uint32_t col, Matrix_t *m)
 {
     if (DEBUG)
     {
-        if (x >= m->cols || y >= m->rows)
+        if (col >= m->cols || row >= m->rows)
         {
 
-            fprintf(stderr, "AIC_MatrixGet out of bounds error.");
+            fprintf(stderr, "AIC_MatrixGet out of bounds error.\n");
             return 0;
         }
     }
 
-    return m->data[y * m->cols + x];
+    return m->data[INDEX(row, col, m)];
 }
 
 void AIC_MatrixPrint(Matrix_t *m, uint8_t verbose)
 {
-    printf("[Matrix %dx%d]\n", m->cols, m->rows);
+    printf("[Matrix %dx%d]\n", m->rows, m->cols);
     if (verbose == 0)
         return;
     if (verbose == 1)
     {
         printf("[");
-        for (uint32_t y = 0; y < m->rows; y++)
+        for (uint32_t row = 0; row < m->rows; row++)
         {
             printf("[");
-            for (uint32_t x = 0; x < m->cols; x++)
+            for (uint32_t col = 0; col < m->cols; col++)
             {
-                if (x < (m->cols - 1))
-                    printf("%f, ", AIC_MatrixGet(x, y, m));
+                if (col < (m->cols - 1))
+                    printf("%f, ", AIC_MatrixGet(row, col, m));
                 else
-                    printf("%f", AIC_MatrixGet(x, y, m));
+                    printf("%f", AIC_MatrixGet(row, col, m));
             }
-            if (y < m->rows - 1)
+            if (row < m->rows - 1)
                 printf("],\n");
             else
                 printf("]");
@@ -72,26 +70,26 @@ void AIC_MatrixPrint(Matrix_t *m, uint8_t verbose)
     if (verbose == 2)
     {
         printf("[");
-        uint32_t y = 0;
+        uint32_t row = 0;
         printf("[");
-        for (uint32_t x = 0; x < m->cols; x++)
+        for (uint32_t col = 0; col < m->cols; col++)
         {
-            if (x < (m->cols - 1))
-                printf("%f, ", AIC_MatrixGet(x, y, m));
+            if (col < (m->cols - 1))
+                printf("%f, ", AIC_MatrixGet(row, col, m));
             else
-                printf("%f", AIC_MatrixGet(x, y, m));
+                printf("%f", AIC_MatrixGet(row, col, m));
         }
         printf("],\n");
 
         printf("...\t...\n");
-        y = m->rows - 1;
+        row = m->rows - 1;
 
-        for (uint32_t x = 0; x < m->cols; x++)
+        for (uint32_t col = 0; col < m->cols; col++)
         {
-            if (x < (m->cols - 1))
-                printf("%f, ", AIC_MatrixGet(x, y, m));
+            if (col < (m->cols - 1))
+                printf("%f, ", AIC_MatrixGet(row, col, m));
             else
-                printf("%f", AIC_MatrixGet(x, y, m));
+                printf("%f", AIC_MatrixGet(row, col, m));
         }
         printf("]");
 
@@ -100,8 +98,7 @@ void AIC_MatrixPrint(Matrix_t *m, uint8_t verbose)
 }
 void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format)
 {
-
-    printf("[Matrix %dx%d]\n", m->cols, m->rows);
+    printf("[Matrix %dx%d]\n", m->rows, m->cols);
     if (verbose == 0)
         return;
 
@@ -113,17 +110,17 @@ void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format)
     if (verbose == 1)
     {
         printf("[");
-        for (uint32_t y = 0; y < m->rows; y++)
+        for (uint32_t row = 0; row < m->rows; row++)
         {
             printf("[");
-            for (uint32_t x = 0; x < m->cols; x++)
+            for (uint32_t col = 0; col < m->cols; col++)
             {
-                if (x < (m->cols - 1))
-                    printf(aux, AIC_MatrixGet(x, y, m));
+                if (col < (m->cols - 1))
+                    printf(aux, AIC_MatrixGet(row, col, m));
                 else
-                    printf(format, AIC_MatrixGet(x, y, m));
+                    printf(format, AIC_MatrixGet(row, col, m));
             }
-            if (y < m->rows - 1)
+            if (row < m->rows - 1)
                 printf("],\n");
             else
                 printf("]");
@@ -133,26 +130,26 @@ void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format)
     if (verbose == 2)
     {
         printf("[");
-        uint32_t y = 0;
+        uint32_t row = 0;
         printf("[");
-        for (uint32_t x = 0; x < m->cols; x++)
+        for (uint32_t col = 0; col < m->cols; col++)
         {
-            if (x < (m->cols - 1))
-                printf(aux, AIC_MatrixGet(x, y, m));
+            if (col < (m->cols - 1))
+                printf(aux, AIC_MatrixGet(row, col, m));
             else
-                printf(format, AIC_MatrixGet(x, y, m));
+                printf(format, AIC_MatrixGet(row, col, m));
         }
         printf("],\n");
 
         printf("...\t...\n");
-        y = m->rows - 1;
+        row = m->rows - 1;
 
-        for (uint32_t x = 0; x < m->cols; x++)
+        for (uint32_t col = 0; col < m->cols; col++)
         {
-            if (x < (m->cols - 1))
-                printf(aux, AIC_MatrixGet(x, y, m));
+            if (col < (m->cols - 1))
+                printf(aux, AIC_MatrixGet(row, col, m));
             else
-                printf(format, AIC_MatrixGet(x, y, m));
+                printf(format, AIC_MatrixGet(row, col, m));
         }
         printf("]");
 
@@ -162,34 +159,34 @@ void AIC_MatrixPrintf(Matrix_t *m, uint8_t verbose, const char *format)
     free(aux);
 }
 
-uint8_t AIC_MatrixCreate(uint32_t cols, uint32_t rows, Matrix_t *m)
+uint8_t AIC_MatrixCreate(uint32_t rows, uint32_t cols, Matrix_t *m)
 {
-    if(m->data)
+    if (m->data)
         AIC_MatrixDestroy(m);
 
     m->rows = rows;
     m->cols = cols;
 
-    m->data = calloc(rows * cols, sizeof(DATA_TYPE));
+    m->data = calloc(rows * cols, sizeof(Data_t));
 
     if (DEBUG)
     {
         if (!m->data)
         {
 
-            fprintf(stderr, "AIC_MatrixCreate calloc error.");
+            fprintf(stderr, "AIC_MatrixCreate calloc error.\n");
             return 0;
         }
     }
     return 1;
 }
-uint8_t AIC_MatrixCreateRand(uint32_t cols, uint32_t rows, Matrix_t *m)
+uint8_t AIC_MatrixCreateRand(uint32_t rows, uint32_t cols, Matrix_t *m)
 {
-    uint8_t r = AIC_MatrixCreate(cols, rows, m);
+    uint8_t r = AIC_MatrixCreate(rows, cols, m);
 
-    for(uint32_t i = 0; i < (rows * cols); i++)
+    for (uint32_t i = 0; i < (rows * cols); i++)
     {
-        m->data[i] = (DATA_TYPE)rand() / RAND_MAX;
+        m->data[i] = (Data_t)rand() / RAND_MAX;
     }
 
     return r;
@@ -201,12 +198,12 @@ void AIC_MatrixDestroy(Matrix_t *m)
 
 uint8_t AIC_MatrixTraspose(Matrix_t *m, Matrix_t *t)
 {
-    uint8_t r = AIC_MatrixCreate(m->rows, m->cols, t);
+    uint8_t r = AIC_MatrixCreate(m->cols, m->rows, t);
 
-    for (uint32_t x = 0; x < t->cols; x++)
+    for (uint32_t col = 0; col < t->cols; col++)
     {
-        for (uint32_t y = 0; y < t->rows; y++)
-            AIC_MatrixSet(x, y, AIC_MatrixGet(y, x, m), t);
+        for (uint32_t row = 0; row < t->rows; row++)
+            AIC_MatrixSet(row, col, AIC_MatrixGet(col, row, m), t);
     }
 
     return r;
@@ -217,12 +214,12 @@ uint8_t AIC_MatrixAdd(Matrix_t *a, Matrix_t *b, Matrix_t *c)
     {
         if (a->cols != b->cols && a->rows != b->rows)
         {
-            fprintf(stderr, "AIC_MatrixAdd dimension error.");
+            fprintf(stderr, "AIC_MatrixAdd dimension error.\n");
             return 0;
         }
     }
 
-    uint8_t r = AIC_MatrixCreate(a->cols, a->rows, c);
+    uint8_t r = AIC_MatrixCreate(a->rows, a->cols, c);
 
     for (uint32_t i = 0; i < (a->cols * a->rows); i++)
         c->data[i] = a->data[i] + b->data[i];
@@ -235,7 +232,7 @@ uint8_t AIC_MatrixAddItself(Matrix_t *a, Matrix_t *b)
     {
         if (a->cols != b->cols && a->rows != b->rows)
         {
-            fprintf(stderr, "AIC_MatrixAddItself dimension error.");
+            fprintf(stderr, "AIC_MatrixAddItself dimension error.\n");
             return 0;
         }
     }
@@ -250,12 +247,12 @@ uint8_t AIC_MatrixSub(Matrix_t *a, Matrix_t *b, Matrix_t *c)
     {
         if (a->cols != b->cols && a->rows != b->rows)
         {
-            fprintf(stderr, "AIC_MatrixAdd dimension error.");
+            fprintf(stderr, "AIC_MatrixSub dimension error.\n");
             return 0;
         }
     }
 
-    uint8_t r = AIC_MatrixCreate(a->cols, a->rows, c);
+    uint8_t r = AIC_MatrixCreate(a->rows, a->cols, c);
 
     for (uint32_t i = 0; i < (a->cols * a->rows); i++)
         c->data[i] = a->data[i] - b->data[i];
@@ -268,7 +265,7 @@ uint8_t AIC_MatrixSubItself(Matrix_t *a, Matrix_t *b)
     {
         if (a->cols != b->cols && a->rows != b->rows)
         {
-            fprintf(stderr, "AIC_MatrixAdd dimension error.");
+            fprintf(stderr, "AIC_MatrixSubItself dimension error.\n");
             return 0;
         }
     }
@@ -277,4 +274,45 @@ uint8_t AIC_MatrixSubItself(Matrix_t *a, Matrix_t *b)
         a->data[i] -= b->data[i];
 
     return 1;
+}
+
+uint8_t AIC_MatrixMultiplication(Matrix_t *a, Matrix_t *b, Matrix_t *c)
+{
+    if (DEBUG)
+    {
+        if (a->cols != b->rows)
+        {
+            fprintf(stderr, "AIC_MatrixMultiplication dimension error.\n");
+            return 0;
+        }
+    }
+
+    uint8_t r = AIC_MatrixCreate(a->rows, b->cols, c);
+
+    for (uint32_t col = 0; col < c->cols; col++)
+    {
+        for (uint32_t row = 0; row < c->rows; row++)
+        {
+            Data_t total = 0;
+            for (uint32_t k = 0; k < a->cols; k++)
+            {
+                total += AIC_MatrixGet(row, k, a) * AIC_MatrixGet(k, col, b);
+            }
+            AIC_MatrixSet(row, col, total, c);
+        }
+    }
+
+    return r;
+}
+
+void AIC_MatrixAddScalar(Matrix_t *m, Data_t value)
+{
+    for (uint32_t i = 0; i < (m->cols * m->rows); i++)
+        m->data[i] += value;
+}
+
+void AIC_MatrixMultiplyScalar(Matrix_t *m, Data_t value)
+{
+    for (uint32_t i = 0; i < (m->cols * m->rows); i++)
+        m->data[i] *= value;
 }
