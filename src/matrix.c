@@ -316,3 +316,17 @@ void AIC_MatrixMultiplyScalar(Matrix_t *m, Data_t value)
     for (uint32_t i = 0; i < (m->cols * m->rows); i++)
         m->data[i] *= value;
 }
+
+void AIC_MatrixCopy(Matrix_t *dest, Matrix_t *src)
+{
+    AIC_MatrixCreate(src->rows, src->cols, dest);
+
+    for(uint32_t i = 0; i < src->rows * src->cols; i++)
+        dest->data[i] = src->data[i];
+}
+
+void AIC_MatrixApplyFunction(Matrix_t *m, Data_t (*fun)(Data_t))
+{
+    for(uint32_t i = 0; i < m->rows * m->cols; i++)
+        m->data[i] = (*fun)(m->data[i]);
+}

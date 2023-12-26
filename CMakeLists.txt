@@ -13,6 +13,8 @@ SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS
 
 set(SOURCES src/main.c
             src/matrix.c
+            src/layer.c
+            src/neural_network.c
             src/serialize.c)
 
 

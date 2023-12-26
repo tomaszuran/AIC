@@ -7,6 +7,7 @@
 
 typedef float Data_t;
 
+
 /*
  *    @brief Matrix data structure.
  *
@@ -184,5 +185,26 @@ void AIC_MatrixAddScalar(Matrix_t *m, Data_t value);
  *    @result Void
  */
 void AIC_MatrixMultiplyScalar(Matrix_t *m, Data_t value);
+
+/*
+ *    @brief A function to copy a matrix
+ *
+ *    @param dest Coppied matrix
+ *    @param src Original matrix
+ * 
+ *    @result Void
+ */
+void AIC_MatrixCopy(Matrix_t *dest, Matrix_t *src);
+
+/*
+ *    @brief A function apply a function to every element of the matrix
+ *
+ *    @param m Matrix to be moddified
+ *    @param fun Function (pointer) to be applied. The prototipe must be Data_t fun(Data_t)
+ * 
+ *    @result Void
+ */
+void AIC_MatrixApplyFunction(Matrix_t *m, Data_t (*fun)(Data_t));
+
 
 #endif // MATRIX_H

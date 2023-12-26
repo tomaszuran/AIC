@@ -1,45 +1,32 @@
 #include <stdio.h>
 #include "matrix.h"
+#include "layer.h"
 #include "serialize.h"
+#include "neural_network.h"
 
 #include <stdlib.h>
 
+// https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
+
 int main(int argc, char **argv)
 {
-    Matrix_t prueba = {0};
+    AIC_TimeSeedRand();
 
-    int load = 0;
+    Matrix_t input = {0}, output = {0};
 
-    printf("1 for load, 0 for save: ");
-    scanf("%d", &load);
+    ML_NeuralNetwork_t nn = {0};
 
-    if (load)
-    {
-        FILE *fp = fopen("serial_matrix.data", "rb");
+    AIC_MLNN_Create(3, &nn);
 
-        AIC_FileMatrixLoad(fp, &prueba);
+    AIC_MLNN_SetInputLayer(7, 10, sigmoid, &nn);
+    AIC_MLNN_SetHiddenLayer(1, 10, sigmoid, &nn);
+    AIC_MLNN_SetHiddenLayer(2, 2, sigmoid, &nn);
 
-        fclose(fp);
+    AIC_MatrixCreateRand(1, 7, &input);
 
-        AIC_MatrixPrint(&prueba, 1);
-    }
-    else
-    {
-        AIC_TimeSeedRand();
+    AIC_MLNN_Predict(&input, &output, &nn);
 
-        AIC_MatrixCreateRand(2, 3, &prueba);
-
-        AIC_MatrixPrint(&prueba, 1);
-
-        FILE *fp = fopen("serial_matrix.data", "wb");
-
-        AIC_FileMatrixSave(fp, &prueba);
-
-        fclose(fp);
-
-    }
-
-    
+    AIC_MatrixPrint(&output, 1);
 
     return 0;
 }
