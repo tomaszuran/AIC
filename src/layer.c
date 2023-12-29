@@ -13,6 +13,7 @@ void AIC_LayerCreate(uint32_t inputs, uint32_t layer_size, Layer_t * layer, Acti
     AIC_MatrixCreateRand(inputs, layer_size, &layer->weights);
     AIC_MatrixCreateRand(1, layer_size, &layer->bias);
     AIC_MatrixCreate(1, layer_size, &layer->output);
+    AIC_MatrixCreate(1, layer_size, &layer->error);
 }
 
 void AIC_LayerDestroy(Layer_t * layer)
@@ -20,6 +21,7 @@ void AIC_LayerDestroy(Layer_t * layer)
     AIC_MatrixDestroy(&layer->weights);
     AIC_MatrixDestroy(&layer->bias);
     AIC_MatrixDestroy(&layer->output);
+    AIC_MatrixDestroy(&layer->error);
 }
 
 void AIC_LayerGenerateOutput(Matrix_t * input, Layer_t * layer)

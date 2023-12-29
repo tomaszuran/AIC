@@ -15,7 +15,7 @@ typedef struct LayerTypeDef
 {
     uint32_t n_in, layer_size;
     ActivationFunction_t activation_function;
-    Matrix_t weights, bias, output;
+    Matrix_t weights, bias, output, error;
 } Layer_t;
 
 

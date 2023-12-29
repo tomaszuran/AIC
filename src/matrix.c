@@ -212,7 +212,7 @@ uint8_t AIC_MatrixAdd(Matrix_t *a, Matrix_t *b, Matrix_t *c)
 {
     if (DEBUG)
     {
-        if (a->cols != b->cols && a->rows != b->rows)
+        if (a->cols != b->cols || a->rows != b->rows)
         {
             fprintf(stderr, "AIC_MatrixAdd dimension error.\n");
             return 0;
@@ -230,7 +230,7 @@ uint8_t AIC_MatrixAddItself(Matrix_t *a, Matrix_t *b)
 {
     if (DEBUG)
     {
-        if (a->cols != b->cols && a->rows != b->rows)
+        if (a->cols != b->cols || a->rows != b->rows)
         {
             fprintf(stderr, "AIC_MatrixAddItself dimension error.\n");
             return 0;
@@ -245,7 +245,7 @@ uint8_t AIC_MatrixSub(Matrix_t *a, Matrix_t *b, Matrix_t *c)
 {
     if (DEBUG)
     {
-        if (a->cols != b->cols && a->rows != b->rows)
+        if (a->cols != b->cols || a->rows != b->rows)
         {
             fprintf(stderr, "AIC_MatrixSub dimension error.\n");
             return 0;
@@ -263,7 +263,7 @@ uint8_t AIC_MatrixSubItself(Matrix_t *a, Matrix_t *b)
 {
     if (DEBUG)
     {
-        if (a->cols != b->cols && a->rows != b->rows)
+        if (a->cols != b->cols || a->rows != b->rows)
         {
             fprintf(stderr, "AIC_MatrixSubItself dimension error.\n");
             return 0;
@@ -321,12 +321,36 @@ void AIC_MatrixCopy(Matrix_t *dest, Matrix_t *src)
 {
     AIC_MatrixCreate(src->rows, src->cols, dest);
 
-    for(uint32_t i = 0; i < src->rows * src->cols; i++)
+    for (uint32_t i = 0; i < src->rows * src->cols; i++)
         dest->data[i] = src->data[i];
 }
 
 void AIC_MatrixApplyFunction(Matrix_t *m, Data_t (*fun)(Data_t))
 {
-    for(uint32_t i = 0; i < m->rows * m->cols; i++)
+    for (uint32_t i = 0; i < m->rows * m->cols; i++)
         m->data[i] = (*fun)(m->data[i]);
+}
+
+void AIC_MatrixMultiplyItself(Matrix_t *a, Matrix_t *b)
+{
+    if (DEBUG)
+    {
+        if (a->cols != b->cols || a->rows != b->rows)
+        {
+            fprintf(stderr, "AIC_MatrixMultiplyItself dimension error.\n");
+            return;
+        }
+    }
+
+    for (uint32_t i = 0; i < a->rows * a->cols; i++)
+        a->data[i] *= b->data[i];
+}
+
+Data_t AIC_MatrixGetSum(Matrix_t *m)
+{
+    Data_t total = 0;
+    for (uint32_t i = 0; i < m->rows * m->cols; i++)
+        total += m->data[i];
+
+    return total;
 }

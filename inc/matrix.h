@@ -177,6 +177,16 @@ uint8_t AIC_MatrixMultiplication(Matrix_t *a, Matrix_t *b, Matrix_t *c);
 void AIC_MatrixAddScalar(Matrix_t *m, Data_t value);
 
 /*
+ *    @brief A function to multiplicate every item in the matrix a times the same item in the matrix b (and stores it in a)
+ *
+ *    @param a Original matrix
+ *    @param b Multiplicated matrix
+ * 
+ *    @result Void
+ */
+void AIC_MatrixMultiplyItself(Matrix_t *a, Matrix_t *b);
+
+/*
  *    @brief A function to multiply a scalar number to every item in the matrix.
  *
  *    @param m Matrix to be modified
@@ -205,6 +215,15 @@ void AIC_MatrixCopy(Matrix_t *dest, Matrix_t *src);
  *    @result Void
  */
 void AIC_MatrixApplyFunction(Matrix_t *m, Data_t (*fun)(Data_t));
+
+/*
+ *    @brief A function to get the total sum of the elements of the matrix
+ *
+ *    @param m Matrix
+ * 
+ *    @result Sum of the elements
+ */
+Data_t AIC_MatrixGetSum(Matrix_t *m);
 
 
 #endif // MATRIX_H
