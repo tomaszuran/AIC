@@ -5,6 +5,7 @@
 #include "neural_network.h"
 
 #include <stdlib.h>
+#include <math.h>
 
 // https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
 
@@ -16,26 +17,79 @@ int main(int argc, char **argv)
 
     ML_NeuralNetwork_t nn = {0};
 
-    AIC_MLNN_Create(3, &nn);
+    AIC_MLNN_Create(2, &nn);
 
-    AIC_MLNN_SetInputLayer(3, 3, sigmoid, &nn);
-    AIC_MLNN_SetHiddenLayer(1, 2, sigmoid, &nn);
-    AIC_MLNN_SetHiddenLayer(2, 1, sigmoid, &nn);
+    AIC_MLNN_SetInputLayer(2, 2, sigmoid, &nn);
+    AIC_MLNN_SetHiddenLayer(1, 1, sigmoid, &nn);
 
     AIC_MatrixCreate(1, 1, &expected_output);
+    AIC_MatrixCreate(1, 2, &input);
 
-    for (int i = 0; i < 1000; i++)
+    float lr = 1;
+    for (int j = 0; j < 100; j++)
     {
-        AIC_MatrixCreateRand(1, 3, &input);
-        Data_t sum = AIC_MatrixGetSum(&input);
-        if (sum < 0.3)
-            AIC_MatrixSet(0, 0, 1.0, &expected_output);
-        if (sum >= 0.3 && sum < 0.6)
-            AIC_MatrixSet(0, 0, 0.0, &expected_output);
-        if (sum >= 0.6)
-            AIC_MatrixSet(0, 0, 0.5, &expected_output);
+        lr = 0.1;
+        for (int i = 0; i < 1000; i++)
+        {
 
-        AIC_MLNN_Fit(&input, &expected_output, 0.1, &nn);
+            uint8_t input_case = rand() % 4;
+            switch (input_case)
+            {
+            case 0:
+                AIC_MatrixSet(0, 0, 0.0, &input);
+                AIC_MatrixSet(0, 1, 0.0, &input);
+                AIC_MatrixSet(0, 0, 0.0, &expected_output);
+                break;
+            case 1:
+                AIC_MatrixSet(0, 0, 0.0, &input);
+                AIC_MatrixSet(0, 1, 1.0, &input);
+                AIC_MatrixSet(0, 0, 1.0, &expected_output);
+                break;
+            case 2:
+                AIC_MatrixSet(0, 0, 1.0, &input);
+                AIC_MatrixSet(0, 1, 0.0, &input);
+                AIC_MatrixSet(0, 0, 1.0, &expected_output);
+                break;
+            case 3:
+                AIC_MatrixSet(0, 0, 1.0, &input);
+                AIC_MatrixSet(0, 1, 1.0, &input);
+                AIC_MatrixSet(0, 0, 0.0, &expected_output);
+                break;
+            }
+
+            AIC_MLNN_Fit(&input, &output, &expected_output, lr, &nn);
+        }
+    }
+
+    for (int i = 0; i < 5; i++)
+    {
+        uint8_t input_case = rand() % 4;
+        switch (input_case)
+        {
+        case 0:
+            AIC_MatrixSet(0, 0, 0.0, &input);
+            AIC_MatrixSet(0, 1, 0.0, &input);
+            break;
+        case 1:
+            AIC_MatrixSet(0, 0, 0.0, &input);
+            AIC_MatrixSet(0, 1, 1.0, &input);
+            break;
+        case 2:
+            AIC_MatrixSet(0, 0, 1.0, &input);
+            AIC_MatrixSet(0, 1, 0.0, &input);
+            break;
+        case 3:
+            AIC_MatrixSet(0, 0, 1.0, &input);
+            AIC_MatrixSet(0, 1, 1.0, &input);
+            break;
+        }
+
+        AIC_MLNN_Predict(&input, &output, &nn);
+
+        printf("Input:\n");
+        AIC_MatrixPrint(&input, 1);
+        printf("Output:\n");
+        AIC_MatrixPrint(&output, 1);
     }
 
     return 0;

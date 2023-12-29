@@ -186,6 +186,18 @@ void AIC_MatrixAddScalar(Matrix_t *m, Data_t value);
  */
 void AIC_MatrixMultiplyItself(Matrix_t *a, Matrix_t *b);
 
+
+/*
+ *    @brief A function to multiplicate every item in the matrix a times the same item in the matrix b (and stores it in a)
+ *
+ *    @param a Multiplicated matrix
+ *    @param b Multiplicated matrix
+ *    @param c Result matrix
+ * 
+ *    @result Open succesfull operation '1', otherwise '0' (only in debug mode)
+ */
+uint8_t AIC_MatrixMultiplyElements(Matrix_t *a, Matrix_t *b, Matrix_t *c);
+
 /*
  *    @brief A function to multiply a scalar number to every item in the matrix.
  *

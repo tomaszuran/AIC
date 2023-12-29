@@ -18,7 +18,9 @@ void AIC_MLNN_SetHiddenLayer(uint32_t layer_number, uint32_t layer_size, Activat
 
 void AIC_MLNN_Predict(Matrix_t * input, Matrix_t * prediction, ML_NeuralNetwork_t * mlnn);
 
-void AIC_MLNN_Fit(Matrix_t * input, Matrix_t * expected_output, Data_t learning_rate, ML_NeuralNetwork_t *mlnn);
+void AIC_MLNN_Fit(Matrix_t * input, Matrix_t * prediction, Matrix_t * expected_output, Data_t learning_rate, ML_NeuralNetwork_t *mlnn);
+
+void AIC_MLNN_Print(ML_NeuralNetwork_t *mlnn);
 
 Data_t sigmoid(Data_t x);
 Data_t dSigmoid(Data_t x);

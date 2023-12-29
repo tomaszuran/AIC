@@ -51,35 +51,65 @@ Data_t dSigmoid(Data_t x)
     return x * (1 - x);
 }
 
+Data_t squared(Data_t x)
+{
+    return x * x;
+}
+
+Data_t loss_abs(Data_t x)
+{
+    return x >= 0 ? x : -x;
+}
+
 static void AIC_MLNN_GenerateErrors(Matrix_t *real_output, Matrix_t *expected_output, ML_NeuralNetwork_t *mlnn)
 {
-    Matrix_t deltaError = {0}, deltaOutput = {0}, t_weights = {0};
+    Matrix_t deltaError = {0}, deltaOutput = {0}, t_weights = {0}, derivative = {0};
 
+    //Error = MSE
     AIC_MatrixSub(expected_output, real_output, &deltaError);
+    AIC_MatrixApplyFunction(&deltaError, squared);
+    printf("Error: %f\n", AIC_MatrixGetSum(&deltaError));
 
-    AIC_MatrixCopy(&deltaOutput, real_output);
-    AIC_MatrixApplyFunction(&deltaOutput, dSigmoid);
+    // deltaOutput = 2 * (expected - output) * dSigmoid(output)
+
+    // deltaError = 2 * (expected - output)
+    AIC_MatrixSub(expected_output, real_output, &deltaError);
+    AIC_MatrixMultiplyScalar(&deltaError, 2.0);
+
+    // derivative = dSigmoid(output)
+    AIC_MatrixCopy(&derivative, real_output);
+    AIC_MatrixApplyFunction(&derivative, dSigmoid);
+
+    // deltaOutput = deltaError * dSigmoid(output)
+    AIC_MatrixMultiplyElements(&deltaError, &derivative, &deltaOutput);
+
+    // layer error = deltaOutput
     AIC_MatrixCopy(&(mlnn->layers[mlnn->n_layers - 1].error), &deltaOutput);
-    AIC_MatrixMultiplyItself(&deltaOutput, &deltaError);
-    AIC_MatrixTraspose(&(mlnn->layers[mlnn->n_layers - 1].weights), &t_weights);
-
-    printf("Total error: %f\n", AIC_MatrixGetSum(&(mlnn->layers[mlnn->n_layers - 1].error)));
 
     for (int32_t i = mlnn->n_layers - 2; i >= 0; i--)
     {
-        AIC_MatrixMultiplication(&deltaOutput, &t_weights, &deltaError);
-        AIC_MatrixApplyFunction(&deltaError, dSigmoid);
-        AIC_MatrixCopy(&(mlnn->layers[i].error), &deltaError);
-        AIC_MatrixTraspose(&(mlnn->layers[i].weights), &t_weights);
-        AIC_MatrixCopy(&deltaOutput, &deltaError);
+        // deltaError[i] = deltaOutput[i+1] x weights[i+1]
+        AIC_MatrixTraspose(&(mlnn->layers[i+1].weights), &t_weights);
+        AIC_MatrixMultiplication(&(mlnn->layers[i+1].error), &t_weights, &deltaError);
+
+        // derivative = dSigmoid(output[i])
+        AIC_MatrixCopy(&derivative, &(mlnn->layers[i].output));
+        AIC_MatrixApplyFunction(&derivative, dSigmoid);
+
+        // deltaOutput[i] = deltaError[i] * dSigmoid(output[i])
+        AIC_MatrixMultiplyElements(&deltaError, &derivative, &deltaOutput);
+
+        // layer error = deltaOutput
+        AIC_MatrixCopy(&(mlnn->layers[i].error), &deltaOutput);
     }
 
     AIC_MatrixDestroy(&deltaError);
     AIC_MatrixDestroy(&deltaOutput);
     AIC_MatrixDestroy(&t_weights);
+    AIC_MatrixDestroy(&derivative);
 }
 
-static void AIC_MLNN_UpdateInputLayer(Matrix_t * input, Data_t learning_rate, ML_NeuralNetwork_t *mlnn, uint32_t layer)
+static void AIC_MLNN_UpdateInputLayer(Matrix_t *input, Data_t learning_rate, ML_NeuralNetwork_t *mlnn, uint32_t layer)
 {
     Matrix_t deltaBias = {0};
 
@@ -88,7 +118,7 @@ static void AIC_MLNN_UpdateInputLayer(Matrix_t * input, Data_t learning_rate, ML
     AIC_MatrixMultiplyScalar(&deltaBias, learning_rate);
     AIC_MatrixAddItself(&mlnn->layers[layer].bias, &deltaBias);
 
-    //Update weights
+    // Update weights
     Matrix_t t_input = {0}, deltaWeights = {0};
     AIC_MatrixTraspose(input, &t_input);
     AIC_MatrixMultiplication(&t_input, &mlnn->layers[layer].error, &deltaWeights);
@@ -109,32 +139,41 @@ static void AIC_MLNN_UpdateHiddenLayer(Data_t learning_rate, ML_NeuralNetwork_t 
     AIC_MatrixMultiplyScalar(&deltaBias, learning_rate);
     AIC_MatrixAddItself(&mlnn->layers[layer].bias, &deltaBias);
 
-    //Update weights
+    // Update weights
     Matrix_t t_input = {0}, deltaWeights = {0};
-    AIC_MatrixTraspose(&mlnn->layers[layer-1].output, &t_input);
+    AIC_MatrixTraspose(&mlnn->layers[layer - 1].output, &t_input);
     AIC_MatrixMultiplication(&t_input, &mlnn->layers[layer].error, &deltaWeights);
     AIC_MatrixMultiplyScalar(&deltaWeights, learning_rate);
     AIC_MatrixAddItself(&mlnn->layers[layer].weights, &deltaWeights);
+
 
     AIC_MatrixDestroy(&deltaWeights);
     AIC_MatrixDestroy(&deltaBias);
     AIC_MatrixDestroy(&t_input);
 }
 
-void AIC_MLNN_Fit(Matrix_t * input, Matrix_t * expected_output, Data_t learning_rate, ML_NeuralNetwork_t *mlnn)
+void AIC_MLNN_Fit(Matrix_t *input, Matrix_t *prediction, Matrix_t *expected_output, Data_t learning_rate, ML_NeuralNetwork_t *mlnn)
 {
-    Matrix_t output = {0};
+    AIC_MLNN_Predict(input, prediction, mlnn);
 
-    AIC_MLNN_Predict(input, &output, mlnn);
-
-    AIC_MLNN_GenerateErrors(&output, expected_output, mlnn);
+    AIC_MLNN_GenerateErrors(prediction, expected_output, mlnn);
 
     AIC_MLNN_UpdateInputLayer(input, learning_rate, mlnn, 0);
 
-    for(uint32_t i = 1; i < mlnn->n_layers; i++)
+    for (uint32_t i = 1; i < mlnn->n_layers; i++)
     {
         AIC_MLNN_UpdateHiddenLayer(learning_rate, mlnn, i);
     }
+}
 
-    AIC_MatrixDestroy(&output);
+void AIC_MLNN_Print(ML_NeuralNetwork_t *mlnn)
+{
+    for(uint32_t i = 0; i < mlnn->n_layers; i++)
+    {
+        printf("Layer %d - Weights:\n", i);
+        AIC_MatrixPrint(&mlnn->layers[i].weights, 1);
+        printf("Layer %d - Bias:\n", i);
+        AIC_MatrixPrint(&mlnn->layers[i].bias, 1);
+        
+    }
 }

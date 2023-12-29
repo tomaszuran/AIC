@@ -354,3 +354,23 @@ Data_t AIC_MatrixGetSum(Matrix_t *m)
 
     return total;
 }
+
+uint8_t AIC_MatrixMultiplyElements(Matrix_t *a, Matrix_t *b, Matrix_t *c)
+{
+    if (DEBUG)
+    {
+        if (a->cols != b->cols || a->rows != b->rows)
+        {
+            fprintf(stderr, "AIC_MatrixMultiplyElements dimension error.\n");
+            return 0;
+        }
+    }
+
+    uint8_t r = AIC_MatrixCreate(a->rows, a->cols, c);
+
+
+    for (uint32_t i = 0; i < (a->cols * a->rows); i++)
+        c->data[i] = a->data[i] * b->data[i];
+
+    return r;
+}
