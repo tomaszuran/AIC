@@ -6,12 +6,15 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "rng.h"
+#include <time.h>
+
+#define TRAIN_DATASET_SIZE 100
 
 // https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
 
 int main(int argc, char **argv)
 {
-    AIC_TimeSeedRand();
 
     Matrix_t input = {0}, output = {0}, expected_output = {0};
 
@@ -25,45 +28,50 @@ int main(int argc, char **argv)
     AIC_MatrixCreate(1, 1, &expected_output);
     AIC_MatrixCreate(1, 2, &input);
 
-    float lr = 1;
-    for (int j = 0; j < 100; j++)
+    MLNN_TrainDataset_t train_dataset;
+
+    AIC_MLNN_TrainDatasetCreate(&train_dataset, TRAIN_DATASET_SIZE);
+
+    AIC_RNG_Seed();
+
+    for (int i = 0; i < TRAIN_DATASET_SIZE; i++)
     {
-        lr = 0.1;
-        for (int i = 0; i < 1000; i++)
+        AIC_MatrixCreate(1, 1, &train_dataset.expected_outputs[i]);
+        AIC_MatrixCreate(1, 2, &train_dataset.inputs[i]);
+        
+        uint8_t input_case = (uint8_t) (AIC_RNG_drand() * 4);
+        switch (input_case)
         {
-
-            uint8_t input_case = rand() % 4;
-            switch (input_case)
-            {
-            case 0:
-                AIC_MatrixSet(0, 0, 0.0, &input);
-                AIC_MatrixSet(0, 1, 0.0, &input);
-                AIC_MatrixSet(0, 0, 0.0, &expected_output);
-                break;
-            case 1:
-                AIC_MatrixSet(0, 0, 0.0, &input);
-                AIC_MatrixSet(0, 1, 1.0, &input);
-                AIC_MatrixSet(0, 0, 1.0, &expected_output);
-                break;
-            case 2:
-                AIC_MatrixSet(0, 0, 1.0, &input);
-                AIC_MatrixSet(0, 1, 0.0, &input);
-                AIC_MatrixSet(0, 0, 1.0, &expected_output);
-                break;
-            case 3:
-                AIC_MatrixSet(0, 0, 1.0, &input);
-                AIC_MatrixSet(0, 1, 1.0, &input);
-                AIC_MatrixSet(0, 0, 0.0, &expected_output);
-                break;
-            }
-
-            AIC_MLNN_Fit(&input, &output, &expected_output, lr, &nn);
+        case 0:
+            AIC_MatrixSet(0, 0, 0.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 1, 0.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 0, 0.0, &train_dataset.expected_outputs[i]);
+            break;
+        case 1:
+            AIC_MatrixSet(0, 0, 0.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 1, 1.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 0, 1.0, &train_dataset.expected_outputs[i]);
+            break;
+        case 2:
+            AIC_MatrixSet(0, 0, 1.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 1, 0.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 0, 1.0, &train_dataset.expected_outputs[i]);
+            break;
+        case 3:
+            AIC_MatrixSet(0, 0, 1.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 1, 1.0, &train_dataset.inputs[i]);
+            AIC_MatrixSet(0, 0, 0.0, &train_dataset.expected_outputs[i]);
+            break;
         }
     }
 
+    AIC_MLNN_TrainSet(train_dataset, 0.1, 10000, &nn);
+//    AIC_MLNN_TrainSet(train_dataset, 0001, 1000, &nn);
+    //AIC_MLNN_TrainSet(train_dataset, 0.0001, 1000, &nn);
+
     for (int i = 0; i < 5; i++)
     {
-        uint8_t input_case = rand() % 4;
+        uint8_t input_case = (uint8_t) (AIC_RNG_drand() * 4);
         switch (input_case)
         {
         case 0:

@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include <stdint.h>
+#include "rng.h"
 
 #define DEBUG 1
 
@@ -18,13 +19,6 @@ typedef struct MatrixTypeDef
     Data_t *data;
     uint32_t rows, cols;
 } Matrix_t;
-
-/*
- *    @brief A function to seed the libc rng
- *
- *    @result Void
- */
-void AIC_TimeSeedRand(void);
 
 /*
  *    @brief A function to set a matrix value

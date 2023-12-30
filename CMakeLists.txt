@@ -15,7 +15,8 @@ set(SOURCES src/main.c
             src/matrix.c
             src/layer.c
             src/neural_network.c
-            src/serialize.c)
+            src/serialize.c
+            src/rng.c)
 
 
 add_executable(AIC ${SOURCES})

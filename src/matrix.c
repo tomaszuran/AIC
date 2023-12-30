@@ -2,14 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 #define INDEX(row, col, matrix) (col * matrix->rows + row)
-
-void AIC_TimeSeedRand(void)
-{
-    srand(time(NULL));
-}
 
 uint8_t AIC_MatrixSet(uint32_t row, uint32_t col, Data_t value, Matrix_t *m)
 {
@@ -186,7 +180,7 @@ uint8_t AIC_MatrixCreateRand(uint32_t rows, uint32_t cols, Matrix_t *m)
 
     for (uint32_t i = 0; i < (rows * cols); i++)
     {
-        m->data[i] = (Data_t)rand() / RAND_MAX;
+        m->data[i] = (Data_t)AIC_RNG_drand();
     }
 
     return r;

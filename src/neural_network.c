@@ -2,7 +2,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <math.h>
+#include "rng.h"
 
 void AIC_MLNN_Create(uint32_t n_layers, ML_NeuralNetwork_t *mlnn)
 {
@@ -61,14 +63,14 @@ Data_t loss_abs(Data_t x)
     return x >= 0 ? x : -x;
 }
 
-static void AIC_MLNN_GenerateErrors(Matrix_t *real_output, Matrix_t *expected_output, ML_NeuralNetwork_t *mlnn)
+static Data_t AIC_MLNN_GenerateErrors(Matrix_t *real_output, Matrix_t *expected_output, ML_NeuralNetwork_t *mlnn)
 {
     Matrix_t deltaError = {0}, deltaOutput = {0}, t_weights = {0}, derivative = {0};
 
-    //Error = MSE
+    // Error = MSE
     AIC_MatrixSub(expected_output, real_output, &deltaError);
     AIC_MatrixApplyFunction(&deltaError, squared);
-    printf("Error: %f\n", AIC_MatrixGetSum(&deltaError));
+    Data_t error = AIC_MatrixGetSum(&deltaError);
 
     // deltaOutput = 2 * (expected - output) * dSigmoid(output)
 
@@ -89,8 +91,8 @@ static void AIC_MLNN_GenerateErrors(Matrix_t *real_output, Matrix_t *expected_ou
     for (int32_t i = mlnn->n_layers - 2; i >= 0; i--)
     {
         // deltaError[i] = deltaOutput[i+1] x weights[i+1]
-        AIC_MatrixTraspose(&(mlnn->layers[i+1].weights), &t_weights);
-        AIC_MatrixMultiplication(&(mlnn->layers[i+1].error), &t_weights, &deltaError);
+        AIC_MatrixTraspose(&(mlnn->layers[i + 1].weights), &t_weights);
+        AIC_MatrixMultiplication(&(mlnn->layers[i + 1].error), &t_weights, &deltaError);
 
         // derivative = dSigmoid(output[i])
         AIC_MatrixCopy(&derivative, &(mlnn->layers[i].output));
@@ -107,6 +109,8 @@ static void AIC_MLNN_GenerateErrors(Matrix_t *real_output, Matrix_t *expected_ou
     AIC_MatrixDestroy(&deltaOutput);
     AIC_MatrixDestroy(&t_weights);
     AIC_MatrixDestroy(&derivative);
+
+    return error;
 }
 
 static void AIC_MLNN_UpdateInputLayer(Matrix_t *input, Data_t learning_rate, ML_NeuralNetwork_t *mlnn, uint32_t layer)
@@ -146,17 +150,16 @@ static void AIC_MLNN_UpdateHiddenLayer(Data_t learning_rate, ML_NeuralNetwork_t 
     AIC_MatrixMultiplyScalar(&deltaWeights, learning_rate);
     AIC_MatrixAddItself(&mlnn->layers[layer].weights, &deltaWeights);
 
-
     AIC_MatrixDestroy(&deltaWeights);
     AIC_MatrixDestroy(&deltaBias);
     AIC_MatrixDestroy(&t_input);
 }
 
-void AIC_MLNN_Fit(Matrix_t *input, Matrix_t *prediction, Matrix_t *expected_output, Data_t learning_rate, ML_NeuralNetwork_t *mlnn)
+static Data_t AIC_MLNN_Fit(Matrix_t *input, Matrix_t *prediction, Matrix_t *expected_output, Data_t learning_rate, ML_NeuralNetwork_t *mlnn)
 {
     AIC_MLNN_Predict(input, prediction, mlnn);
 
-    AIC_MLNN_GenerateErrors(prediction, expected_output, mlnn);
+    Data_t error = AIC_MLNN_GenerateErrors(prediction, expected_output, mlnn);
 
     AIC_MLNN_UpdateInputLayer(input, learning_rate, mlnn, 0);
 
@@ -164,16 +167,80 @@ void AIC_MLNN_Fit(Matrix_t *input, Matrix_t *prediction, Matrix_t *expected_outp
     {
         AIC_MLNN_UpdateHiddenLayer(learning_rate, mlnn, i);
     }
+
+    return error;
 }
 
 void AIC_MLNN_Print(ML_NeuralNetwork_t *mlnn)
 {
-    for(uint32_t i = 0; i < mlnn->n_layers; i++)
+    for (uint32_t i = 0; i < mlnn->n_layers; i++)
     {
         printf("Layer %d - Weights:\n", i);
         AIC_MatrixPrint(&mlnn->layers[i].weights, 1);
         printf("Layer %d - Bias:\n", i);
         AIC_MatrixPrint(&mlnn->layers[i].bias, 1);
-        
     }
+}
+
+static void shuffle(uint32_t *array, size_t n) {
+    AIC_RNG_Seed();
+
+
+    if (n > 1) {
+        size_t i;
+        for (i = n - 1; i > 0; i--) {
+            size_t j = (unsigned int) (AIC_RNG_drand()*(i+1));
+            int t = array[j];
+            array[j] = array[i];
+            array[i] = t;
+        }
+    }
+}
+
+void AIC_MLNN_TrainSet(MLNN_TrainDataset_t dataset, Data_t learning_rate, uint32_t epochs, ML_NeuralNetwork_t *mlnn)
+{
+    Matrix_t dummy_output = {0};
+
+    clock_t start, end;
+    double cpu_time_used;
+    Data_t error = 0;
+
+    uint32_t indices[dataset.quantity];
+
+    for (uint32_t i = 0; i < dataset.quantity; i++)
+        indices[i] = i;
+
+    for (uint32_t j = 0; j < epochs; j++)
+    {
+        start = clock();
+        printf("Epoch %d/%d\t", j + 1, epochs);
+        fflush(stdout);
+        //shuffle(indices, dataset.quantity);
+        error = 0;
+        for (uint32_t i = 0; i < dataset.quantity; i++)
+        {
+            error += AIC_MLNN_Fit(&dataset.inputs[indices[i]], &dummy_output, &dataset.expected_outputs[indices[i]], learning_rate, mlnn);
+        }
+        end = clock();
+        cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+        printf("Done in %lfsec\tAverage error = %f\n", cpu_time_used, error / dataset.quantity);
+    }
+
+    AIC_MatrixDestroy(&dummy_output);
+}
+
+void AIC_MLNN_TrainDatasetCreate(MLNN_TrainDataset_t * dataset, uint32_t size)
+{
+    dataset->quantity = size;
+    
+    dataset->inputs = calloc(size, sizeof(Matrix_t));
+    dataset->expected_outputs = calloc(size, sizeof(Matrix_t));  
+}
+
+void AIC_MLNN_TrainDatasetDestroy(MLNN_TrainDataset_t * dataset)
+{
+    dataset->quantity = 0;
+    
+    free(dataset->inputs);
+    free(dataset->expected_outputs);
 }
