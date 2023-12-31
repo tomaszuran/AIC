@@ -4,6 +4,8 @@
 #include "matrix.h"
 #include "layer.h"
 
+// https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
+
 typedef struct MLNN_TypeDef
 {
     uint32_t n_layers;
