@@ -43,6 +43,12 @@ void AIC_MLNN_Predict(Matrix_t *input, Matrix_t *prediction, ML_NeuralNetwork_t 
     AIC_MatrixCopy(prediction, &mlnn->layers[mlnn->n_layers - 1].output);
 }
 
+void AIC_MLNN_PredictSet(Matrix_t *input, Matrix_t *prediction, uint32_t quantity, ML_NeuralNetwork_t *mlnn)
+{
+    for (uint32_t i = 0; i < quantity; i++)
+        AIC_MLNN_Predict(&input[i], &prediction[i], mlnn);
+}
+
 Data_t sigmoid(Data_t x)
 {
     return 1 / (1 + exp(-x));
@@ -182,14 +188,16 @@ void AIC_MLNN_Print(ML_NeuralNetwork_t *mlnn)
     }
 }
 
-static void shuffle(uint32_t *array, size_t n) {
+static void shuffle(uint32_t *array, size_t n)
+{
     AIC_RNG_Seed();
 
-
-    if (n > 1) {
+    if (n > 1)
+    {
         size_t i;
-        for (i = n - 1; i > 0; i--) {
-            size_t j = (unsigned int) (AIC_RNG_drand()*(i+1));
+        for (i = n - 1; i > 0; i--)
+        {
+            size_t j = (unsigned int)(AIC_RNG_drand() * (i + 1));
             int t = array[j];
             array[j] = array[i];
             array[i] = t;
@@ -197,7 +205,7 @@ static void shuffle(uint32_t *array, size_t n) {
     }
 }
 
-void AIC_MLNN_TrainSet(MLNN_TrainDataset_t dataset, Data_t learning_rate, uint32_t epochs, ML_NeuralNetwork_t *mlnn)
+void AIC_MLNN_TrainDataset(MLNN_TrainDataset_t dataset, uint8_t shuffle_data, Data_t learning_rate, uint32_t epochs, ML_NeuralNetwork_t *mlnn)
 {
     Matrix_t dummy_output = {0};
 
@@ -215,7 +223,8 @@ void AIC_MLNN_TrainSet(MLNN_TrainDataset_t dataset, Data_t learning_rate, uint32
         start = clock();
         printf("Epoch %d/%d\t", j + 1, epochs);
         fflush(stdout);
-        //shuffle(indices, dataset.quantity);
+        if (shuffle_data)
+            shuffle(indices, dataset.quantity);
         error = 0;
         for (uint32_t i = 0; i < dataset.quantity; i++)
         {
@@ -229,18 +238,18 @@ void AIC_MLNN_TrainSet(MLNN_TrainDataset_t dataset, Data_t learning_rate, uint32
     AIC_MatrixDestroy(&dummy_output);
 }
 
-void AIC_MLNN_TrainDatasetCreate(MLNN_TrainDataset_t * dataset, uint32_t size)
+void AIC_MLNN_TrainDatasetCreate(MLNN_TrainDataset_t *dataset, uint32_t size)
 {
     dataset->quantity = size;
-    
+
     dataset->inputs = calloc(size, sizeof(Matrix_t));
-    dataset->expected_outputs = calloc(size, sizeof(Matrix_t));  
+    dataset->expected_outputs = calloc(size, sizeof(Matrix_t));
 }
 
-void AIC_MLNN_TrainDatasetDestroy(MLNN_TrainDataset_t * dataset)
+void AIC_MLNN_TrainDatasetDestroy(MLNN_TrainDataset_t *dataset)
 {
     dataset->quantity = 0;
-    
+
     free(dataset->inputs);
     free(dataset->expected_outputs);
 }

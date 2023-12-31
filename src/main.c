@@ -9,7 +9,7 @@
 #include "rng.h"
 #include <time.h>
 
-#define TRAIN_DATASET_SIZE 100
+#define TRAIN_DATASET_SIZE 10000
 
 // https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
 
@@ -65,9 +65,8 @@ int main(int argc, char **argv)
         }
     }
 
-    AIC_MLNN_TrainSet(train_dataset, 0.1, 10000, &nn);
-//    AIC_MLNN_TrainSet(train_dataset, 0001, 1000, &nn);
-    //AIC_MLNN_TrainSet(train_dataset, 0.0001, 1000, &nn);
+    AIC_MLNN_TrainDataset(train_dataset, 1, 0.1, 100, &nn);
+    AIC_MLNN_TrainDataset(train_dataset, 1, 0.01, 100, &nn);
 
     for (int i = 0; i < 5; i++)
     {

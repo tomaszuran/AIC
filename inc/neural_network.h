@@ -26,7 +26,8 @@ void AIC_MLNN_SetInputLayer(uint32_t inputs, uint32_t layer_size, ActivationFunc
 void AIC_MLNN_SetHiddenLayer(uint32_t layer_number, uint32_t layer_size, ActivationFunction_t activation_function, ML_NeuralNetwork_t *mlnn);
 
 void AIC_MLNN_Predict(Matrix_t *input, Matrix_t *prediction, ML_NeuralNetwork_t *mlnn);
-void AIC_MLNN_TrainSet(MLNN_TrainDataset_t dataset, Data_t learning_rate, uint32_t epochs, ML_NeuralNetwork_t *mlnn);
+void AIC_MLNN_TrainDataset(MLNN_TrainDataset_t dataset, uint8_t shuffle_data, Data_t learning_rate, uint32_t epochs, ML_NeuralNetwork_t *mlnn);
+void AIC_MLNN_PredictSet(Matrix_t *input, Matrix_t *prediction, uint32_t quantity, ML_NeuralNetwork_t *mlnn);
 
 void AIC_MLNN_TrainDatasetCreate(MLNN_TrainDataset_t * dataset, uint32_t size);
 
