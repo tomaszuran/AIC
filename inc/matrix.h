@@ -232,4 +232,7 @@ void AIC_MatrixApplyFunction(Matrix_t *m, Data_t (*fun)(Data_t));
 Data_t AIC_MatrixGetSum(Matrix_t *m);
 
 
+uint32_t AIC_MatrixLoadFromCSV(char *filename, Matrix_t *matrix);
+uint8_t AIC_MatrixSaveToCSV(char *filename, Matrix_t *matrix, uint32_t quantity);
+
 #endif // MATRIX_H

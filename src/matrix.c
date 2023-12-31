@@ -362,9 +362,76 @@ uint8_t AIC_MatrixMultiplyElements(Matrix_t *a, Matrix_t *b, Matrix_t *c)
 
     uint8_t r = AIC_MatrixCreate(a->rows, a->cols, c);
 
-
     for (uint32_t i = 0; i < (a->cols * a->rows); i++)
         c->data[i] = a->data[i] * b->data[i];
 
     return r;
+}
+
+uint32_t AIC_MatrixLoadFromCSV(char *filename, Matrix_t *matrix)
+{
+    FILE *fp = fopen(filename, "r");
+
+    if (!fp)
+        return 0;
+
+    char buffer[4096];
+
+    fgets(buffer, 4096, fp);
+
+    char *token = strtok(buffer, ",");
+    matrix->rows = atoi(token);
+    token = strtok(NULL, ",");
+    matrix->cols = atoi(token);
+    token = strtok(NULL, ",");
+    uint32_t quantity = atoi(token);
+
+    for (uint32_t i = 0; i < quantity; i++)
+    {
+        AIC_MatrixCreate(matrix->rows, matrix->cols, &matrix[i]);
+
+        for (uint32_t row = 0; row < matrix->rows; row++)
+        {
+            if (!fgets(buffer, 4096, fp))
+                return 0;
+            token = strtok(buffer, ",");
+            for (uint32_t col = 0; col < matrix->cols; col++)
+            {
+                if (!token)
+                    return 0;
+                AIC_MatrixSet(row, col, atof(token), &matrix[i]);
+                token = strtok(NULL, ",");
+            }
+        }
+    }
+
+    fclose(fp);
+
+    return quantity;
+}
+
+uint8_t AIC_MatrixSaveToCSV(char *filename, Matrix_t *matrix, uint32_t quantity)
+{
+    FILE *fp = fopen(filename, "w+");
+
+    if (!fp)
+        return 0;
+
+    fprintf(fp, "%d, %d, %d\n", matrix->rows, matrix->cols, quantity);
+
+    for (uint32_t i = 0; i < quantity; i++)
+    {
+        for (uint32_t row = 0; row < matrix->rows; row++)
+        {
+            for (uint32_t col = 0; col < matrix->cols; col++)
+            {
+                fprintf(fp, "%f,", AIC_MatrixGet(row, col, matrix));
+            }
+            fprintf(fp, "\n");
+        }
+    }
+
+    fclose(fp);
+
+    return 1;
 }
