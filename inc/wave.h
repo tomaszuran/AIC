@@ -38,7 +38,7 @@ typedef struct WaveTypeDef
     WAVE_Data_t wave_data;
 } Wave_t;
 
-void WAVE_Create(WAVE_Riff_t riff, WAVE_Fmt_t fmt, int duration_ms, Wave_t *wave);
+uint8_t WAVE_Create(uint16_t NumChannels, uint32_t SampleRate, uint32_t NumSamples, Wave_t * wave);
 void WAVE_Get(char *filename, Wave_t *wave);
 void WAVE_Save(char *filename, Wave_t *wave);
 void WAVE_SetData(short *data, Wave_t *wave);

@@ -3,40 +3,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/*
-uint8_t WAVE_Create(char * filename, WAVE_Riff_t riff, WAVE_Fmt_t fmt, int duration_ms)
+
+uint8_t WAVE_Create(uint16_t NumChannels, uint32_t SampleRate, uint32_t NumSamples, Wave_t * wave)
 {
-    FILE *fp = fopen(filename, "wb");
+    wave->riff.ChunkID[0] = 'R';
+    wave->riff.ChunkID[1] = 'I';
+    wave->riff.ChunkID[2] = 'F';
+    wave->riff.ChunkID[3] = 'F';
+    
+    wave->riff.Format[0] = 'W';
+    wave->riff.Format[1] = 'A';
+    wave->riff.Format[2] = 'V';
+    wave->riff.Format[3] = 'E';
 
-    fwrite(&riff, sizeof(WAVE_Riff_t), 1, fp);
-    fwrite(&fmt, sizeof(WAVE_Fmt_t), 1, fp);
+    // Falta riff chunksize que es (SubChunk2Size + 36)
 
-    WAVE_Data_t dat;
+    wave->fmt.SubChunk1ID[0] = 'f';
+    wave->fmt.SubChunk1ID[1] = 'm';
+    wave->fmt.SubChunk1ID[2] = 't';
+    wave->fmt.SubChunk1ID[3] =  32;
 
-    strncpy(dat.SubChunk2ID, "data", 4);
+    wave->fmt.SubChunk1Size = 16;
+    wave->fmt.AudioFormat = 1;
+    wave->fmt.NumChannels = NumChannels;
+    wave->fmt.SampleRate = SampleRate;
+    wave->fmt.ByteRate = SampleRate * 2 * NumChannels;
+    wave->fmt.BlockAlign = 2;
+    wave->fmt.BitsPerSample = 16;
+    
+    wave->wave_data.SubChunk2ID[0] = 'd';
+    wave->wave_data.SubChunk2ID[1] = 'a';
+    wave->wave_data.SubChunk2ID[2] = 't';
+    wave->wave_data.SubChunk2ID[3] = 'a';
+    
+    wave->wave_data.SubChunk2Size = NumSamples * wave->fmt.BlockAlign;
+    wave->riff.ChunkSize = wave->wave_data.SubChunk2Size + 36; // Puede ser 32 ?
 
-    uint32_t NumSamples = duration_ms * 1000 * fmt.SampleRate;
+    wave->wave_data.size = NumSamples;
 
-    dat.SubChunk2Size = NumSamples * fmt.BlockAlign;
+    wave->wave_data.data = malloc(sizeof(short) * NumSamples);
+    
+    if(!wave->wave_data.data)
+        return 0;
 
-    fwrite(dat.SubChunk2ID, sizeof(char), 4, fp);
-    fwrite(&dat.SubChunk2Size, sizeof(uint32_t), 1, fp);
-
-    short data[NumSamples];
-
-    for(int i = 0; i < NumSamples; i++)
-        data[i] = 0;
-
-    fwrite(data, sizeof(short), NumSamples, fp);
-
-    fclose(fp);
-
-
-    Wave r(filename.c_str());
-
-    return r;
+    return 1;
 }
-*/
+
 
 static uint8_t checkId(char *id)
 {
@@ -65,20 +77,6 @@ static uint8_t checkId(char *id)
         return 3;
     else
         return 0;
-}
-
-void WAVE_Create(WAVE_Riff_t riff, WAVE_Fmt_t fmt, int duration_ms, Wave_t *wave)
-{
-    wave->fmt = fmt;
-    wave->riff = riff;
-    wave->wave_data.SubChunk2ID[0] = 'd';
-    wave->wave_data.SubChunk2ID[1] = 'a';
-    wave->wave_data.SubChunk2ID[2] = 't';
-    wave->wave_data.SubChunk2ID[3] = 'a';
-    uint32_t NumSamples = duration_ms * 1000 * fmt.SampleRate;
-    wave->wave_data.SubChunk2Size = NumSamples * fmt.BlockAlign;
-    wave->wave_data.size = wave->wave_data.SubChunk2Size / sizeof(short);
-    wave->wave_data.data = calloc(NumSamples, sizeof(short));
 }
 
 void WAVE_Get(char *filename, Wave_t *wave)
