@@ -28,7 +28,7 @@ uint8_t WAVE_Create(uint16_t NumChannels, uint32_t SampleRate, uint32_t NumSampl
     wave->fmt.NumChannels = NumChannels;
     wave->fmt.SampleRate = SampleRate;
     wave->fmt.ByteRate = SampleRate * 2 * NumChannels;
-    wave->fmt.BlockAlign = 2;
+    wave->fmt.BlockAlign = NumChannels == 1 ? 2 : 4;
     wave->fmt.BitsPerSample = 16;
     
     wave->wave_data.SubChunk2ID[0] = 'd';
@@ -37,7 +37,7 @@ uint8_t WAVE_Create(uint16_t NumChannels, uint32_t SampleRate, uint32_t NumSampl
     wave->wave_data.SubChunk2ID[3] = 'a';
     
     wave->wave_data.SubChunk2Size = NumSamples * wave->fmt.BlockAlign;
-    wave->riff.ChunkSize = wave->wave_data.SubChunk2Size + 36; // Puede ser 32 ?
+    wave->riff.ChunkSize = wave->wave_data.SubChunk2Size + 32;
 
     wave->wave_data.size = NumSamples;
 
@@ -134,7 +134,7 @@ void WAVE_Save(char * filename, Wave_t * wave)
 
 void WAVE_SetData(short *data, Wave_t *wave)
 {
-    memcpy(wave->wave_data.data, data, wave->wave_data.SubChunk2Size);
+    memcpy(wave->wave_data.data, data, wave->wave_data.size * 2);
 }
 
 uint32_t WAVE_GetNumSamples(Wave_t *wave)

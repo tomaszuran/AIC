@@ -11,18 +11,19 @@
 int main(int argc, char **argv)
 {
     Wave_t wave;
-    WAVE_Create(1, 44100, 44100 * 5, &wave);
+    WAVE_Create(2, 44100, 44100 * 5, &wave);
 
-    printf("Data size = %d\n", wave.wave_data.size);
+    //WAVE_Get("2.wav", &wave);
 
     short * data = malloc(sizeof(short) * wave.wave_data.size);
 
     for(uint32_t i = 0; i < wave.wave_data.size; i+=2)
     {
         double t = (double)i / (wave.fmt.SampleRate * wave.fmt.NumChannels); 
-        short value = 5000 * sin(2 * PI * 1000 * t);
-        data[i] = value;
-        data[i+1] = value;
+        short value1 = 5000 * sin(2 * PI * 1000 * t);
+        short value2 = 5000 * sin(2 * PI * 440 * t);
+        data[i] = value1;
+        data[i+1] = value2;
     }
 
     WAVE_SetData(data, &wave);
